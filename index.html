@@ -1000,7 +1000,7 @@ async function showLogin(){
   add('<span class="cyan">Username:</span>');
   const uname = await waitForInput(null, false);
 
-  if(uname.toLowerCase() !== 'somya'){
+  if(uname.toLowerCase() !== 'hydra'){
     add(`<span class="yellow">▶ ${uname}</span>`);
     await type('[ ACCESS DENIED ] — Invalid username.','red',50);
     await s(800);
