@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Cyber Terminal v1.0</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -27,7 +27,8 @@
     border:2px solid #00ff41;
     box-shadow:0 0 18px #00ff41aa, 0 0 40px #00ff4133;
     padding:12px 14px;
-    height:98vh;
+    height:calc(100dvh - 24px);
+    max-height:98vh;
     display:flex;
     flex-direction:column;
   }
@@ -153,7 +154,7 @@
   /* ── Info Panel (inside terminal, right side) ── */
   #info-panel {
     display:none;
-    width:120px;
+    width:190px;
     flex-shrink:0;
     background:#000d00;
     border:1px solid #00ff4155;
@@ -163,32 +164,32 @@
     overflow-x:hidden;
     -webkit-overflow-scrolling:touch;
     font-family:'Courier New',Courier,monospace;
-    font-size:8px;
+    font-size:10px;
     color:#00ff41;
   }
   #info-panel::-webkit-scrollbar { width:2px; }
   #info-panel::-webkit-scrollbar-thumb { background:#00ff4144; }
   .sp-title {
-    color:#ff3c3c;
-    font-size:8px;
+    color:#00ffff;
+    font-size:10px;
     font-weight:bold;
     text-align:center;
-    border-bottom:1px solid #ff3c3c55;
+    border-bottom:1px solid #00ffff55;
     padding-bottom:3px;
     margin-bottom:3px;
     letter-spacing:1px;
   }
   .sp-section {
     color:#00ffff;
-    font-size:7px;
+    font-size:9px;
     font-weight:bold;
     margin:4px 0 1px 0;
-    border-left:2px solid #ff3c3c;
+    border-left:2px solid #00ffff;
     padding-left:3px;
     letter-spacing:0.5px;
   }
   .sp-row {
-    font-size:7.5px;
+    font-size:9px;
     color:#00ff41;
     padding:1px 0;
     word-break:break-all;
@@ -201,7 +202,7 @@
   .sp-status {
     text-align:center;
     margin-top:4px;
-    font-size:7px;
+    font-size:9px;
     font-weight:bold;
     color:#ff3c3c;
     border:1px solid #ff3c3c44;
@@ -209,17 +210,50 @@
     letter-spacing:1px;
     animation: spblink 1s step-start infinite;
   }
-  @keyframes spblink { 50%{ opacity:0; } }
+  #sp-radar { display:none; text-align:center; margin:6px 0; padding:6px 3px; border:1px solid #00ff4155; background:#001000; }
+  .radar-scope { width:104px; height:104px; margin:0 auto 5px; position:relative; overflow:hidden; border:1px solid #00ff41; border-radius:50%; background:repeating-radial-gradient(circle, transparent 0 16px, #00ff4144 17px 18px), linear-gradient(90deg, transparent 49.5%, #00ff4133 50%, transparent 50.5%), linear-gradient(transparent 49.5%, #00ff4133 50%, transparent 50.5%); box-shadow:0 0 10px #00ff4155; }
+  .radar-scope::before { content:''; position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg, transparent 0deg 300deg, #00ff4166 360deg); animation:radarSweep 2s linear infinite; }
+  .radar-dot { position:absolute; width:6px; height:6px; border-radius:50%; background:#ff253a; box-shadow:0 0 7px #ff253a,0 0 14px #ff001e; animation:radarPulse 1.2s ease-in-out infinite; }
+  #sp-radar-label { color:#00ffff; font-size:9px; font-weight:bold; letter-spacing:1px; }
+  @keyframes radarSweep { to { transform:rotate(360deg); } }
+  @keyframes radarPulse { 50% { opacity:.25; transform:scale(.65); } }  @keyframes spblink { 50%{ opacity:0; } }
+  @media (max-width:600px) { #info-panel { width:42%; min-width:130px; } }
+  .terminal-toolbar { display:flex; align-items:center; gap:7px; flex-shrink:0; margin-bottom:6px; }
+  #sound-toggle { flex:0 0 auto; min-height:36px; padding:6px 10px; border:1px solid #00ff41; border-radius:3px; background:#001400; color:#00ff41; font:600 11px 'Courier New',monospace; cursor:pointer; touch-action:manipulation; }
+  #sound-toggle:focus-visible { outline:2px solid #00ffff; outline-offset:2px; }
+  @media (max-width:700px) {
+    body { padding:env(safe-area-inset-top) 5px env(safe-area-inset-bottom); }
+    #terminal { height:100dvh; max-height:none; padding:8px; border-width:1px; }
+    #main-row { flex-direction:column; gap:5px; }
+    #info-panel { order:0; width:100%; min-width:0; flex:0 0 min(28dvh,210px); }
+    #out { order:1; flex:1 1 auto; min-height:0; }
+    .radar-scope { width:82px; height:82px; }
+    #sp-radar { margin:3px 0; padding:3px; }
+    #sound-toggle { min-height:40px; padding:7px 9px; }
+    #timer-bar { min-width:0; padding:5px; letter-spacing:0; font-size:10px; }
+    .line { overflow-wrap:anywhere; word-break:normal; }
+  }
+  @media (max-height:500px) and (orientation:landscape) {
+    #main-row { flex-direction:row; }
+    #info-panel { order:1; width:min(35vw,190px); flex:0 0 min(35vw,190px); }
+    #out { order:0; }
+    .radar-scope { width:70px; height:70px; }
+    #info-panel { font-size:9px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior:auto !important; animation-duration:0.01ms !important; animation-iteration-count:1 !important; }
+  }
 </style>
 </head>
 <body>
 <div class="scanline"></div>
 <div id="terminal">
-  <div id="timer-bar">⏱ Remaining: --:--</div>
+  <div class="terminal-toolbar"><div id="timer-bar">⏱ Remaining: --:--</div><button id="sound-toggle" type="button" aria-pressed="true" aria-label="Turn sound effects off">🔊 SOUND ON</button></div>
   <div id="main-row">
     <div id="out"></div>
     <div id="info-panel">
-      <div class="sp-title">⚠ LOCKOUT</div>
+      <div class="sp-title">◉ STATUS PANEL</div>
+      <div id="sp-radar"><div class="radar-scope"><span class="radar-dot"></span></div><div id="sp-radar-label">SCANNING</div></div>
       <div id="sp-loc-sec"  class="sp-section" style="display:none">📍 LOCATION</div>
       <div id="sp-loc"></div>
       <div id="sp-users-sec" class="sp-section" style="display:none">👤 USERS</div>
@@ -232,6 +266,8 @@
       <div id="sp-dev"></div>
       <div id="sp-files-sec" class="sp-section" style="display:none">🗂 FILES</div>
       <div id="sp-files"></div>
+      <div id="sp-input-sec" class="sp-section" style="display:none">◉ INPUT STATUS</div><div id="sp-input"></div>
+      <div id="sp-places-sec" class="sp-section" style="display:none">📍 NEAR HYDERABAD · SAMPLE</div><div id="sp-places"></div>
       <div id="sp-status" class="sp-status" style="display:none">◉ LOCKED OUT</div>
     </div>
   </div>
@@ -247,6 +283,36 @@ const out      = document.getElementById('out');
 const inp      = document.getElementById('cmd-input');
 const timerBar = document.getElementById('timer-bar');
 const inpRow   = document.getElementById('input-row');
+const soundToggle = document.getElementById('sound-toggle');
+let soundEnabled = true;
+let soundContext = null;
+async function playUiSound(kind='tick') {
+  if(!soundEnabled) return;
+  const AudioCtor=window.AudioContext||window.webkitAudioContext;
+  if(!AudioCtor) return;
+  try {
+    soundContext ||= new AudioCtor();
+    if(soundContext.state==='suspended') await soundContext.resume();
+    const now=soundContext.currentTime;
+    const osc=soundContext.createOscillator();
+    const gain=soundContext.createGain();
+    const tones={command:520,scan:720,success:880,stop:260};
+    osc.type='sine'; osc.frequency.setValueAtTime(tones[kind]||440,now);
+    if(kind==='success') osc.frequency.exponentialRampToValueAtTime(1100,now+.09);
+    gain.gain.setValueAtTime(.0001,now);
+    gain.gain.exponentialRampToValueAtTime(.045,now+.012);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+.13);
+    osc.connect(gain); gain.connect(soundContext.destination);
+    osc.start(now); osc.stop(now+.14);
+  } catch(e) { /* Sound is optional when the browser blocks audio. */ }
+}
+soundToggle.addEventListener('click',()=>{
+  soundEnabled=!soundEnabled;
+  soundToggle.textContent=soundEnabled?'🔊 SOUND ON':'🔇 SOUND OFF';
+  soundToggle.setAttribute('aria-pressed',String(soundEnabled));
+  soundToggle.setAttribute('aria-label',soundEnabled?'Turn sound effects off':'Turn sound effects on');
+  if(soundEnabled) playUiSound('success');
+});
 
 // ── Info Panel refs ──
 const infoPanel    = document.getElementById('info-panel');
@@ -264,14 +330,39 @@ const spFiles      = document.getElementById('sp-files');
 const spFilesSec   = document.getElementById('sp-files-sec');
 const spStatus     = document.getElementById('sp-status');
 
-const LOCATIONS = ['HYDERABAD','SAMSABAD','SECUNDERABAD','RANGAPUR','ANDHRA PRADESH','KUTHALAM','MEDAK','RESTAURANT'];
+const LOCATIONS = ['HYDERABAD','SAMSABAD','SECUNDERABAD','RANGAPOOR','PINCHRALA','CHARMINAR','HYDERABAD CYBER OFFICE','MEDAK'];
 
 function spShow(){ infoPanel.style.display='block'; }
+let radarLocationUnlocked=false;
+let radarDotCount=1;
+function setRadar(on,label='SCANNING',requestedDots=radarDotCount){
+  const radar=document.getElementById('sp-radar');
+  const scope=radar?.querySelector('.radar-scope');
+  const l=document.getElementById('sp-radar-label');
+  radarDotCount=radarLocationUnlocked?1:Math.max(1,Math.min(8,requestedDots));
+  if(radar) radar.style.display=on?'block':'none';
+  if(l) l.textContent=label;
+  if(scope){
+    scope.querySelectorAll('.radar-dot').forEach(dot=>dot.remove());
+    for(let i=0;i<radarDotCount;i++){
+      const angle=(-90+i*360/radarDotCount)*Math.PI/180;
+      const dot=document.createElement('span');
+      dot.className='radar-dot';
+      dot.style.left=`${50+37*Math.cos(angle)}%`;
+      dot.style.top=`${50+37*Math.sin(angle)}%`;
+      dot.style.animationDelay=`${i*.12}s`;
+      scope.appendChild(dot);
+    }
+  }
+}
 function spHide(){
   infoPanel.style.display='none';
   [spUsers,spNums,spSocial,spLoc,spDev,spFiles].forEach(el=>el.innerHTML='');
+  document.getElementById('sp-input').innerHTML=''; document.getElementById('sp-places').innerHTML='';
+  [document.getElementById('sp-input-sec'),document.getElementById('sp-places-sec')].forEach(el=>el.style.display='none');
   [spUsersSec,spNumsSec,spSocialSec,spLocSec,spDevSec,spFilesSec].forEach(el=>el.style.display='none');
   spStatus.style.display='none';
+  setRadar(false);
 }
 
 function spAddRow(container, secEl, text, cls=''){
@@ -293,9 +384,6 @@ function spSetStatus(on){ spStatus.style.display=on?'block':'none'; }
 
 function spMarkRemoved(el, text){ if(el){ el.classList.add('removed'); el.textContent='✗ '+text; } }
 
-inp.focus();
-document.body.addEventListener('click', ()=>inp.focus());
-document.body.addEventListener('touchend', ()=>{ inp.focus(); }, {passive:true});
 
 // Mobile keyboard open hone par scroll fix
 inp.addEventListener('focus', ()=>{
@@ -314,6 +402,7 @@ function add(html, cls=''){
   const d = document.createElement('div');
   d.className = 'line ' + cls;
   d.innerHTML = html;
+  if(/CURRENT LOCATION STATUS|\[ STOPPED \]|Session Complete|Option [1-5].*\[RUN\]/i.test(html)) playUiSound(/STOPPED/i.test(html)?'stop':/Complete/i.test(html)?'success':'scan');
   out.appendChild(d);
   scroll();
   return d;
@@ -372,7 +461,7 @@ function startTimer(label, minutes=30){
     const sc=String(Math.floor((rem%60000)/1000)).padStart(2,'0');
     timerBar.textContent=`⏱ ${label}  |  Remaining: ${m}:${sc}`;
     if(prompt) prompt.innerHTML=`<span style="color:#ffe600;font-size:10px">[${m}:${sc}]</span> <span style="color:#00ffff">root@cyber:~$</span>&nbsp;`;
-    if(rem===0){ clearInterval(timerInterval); running=false; }
+    if(rem===0){ clearInterval(timerInterval); running=false; window.dispatchEvent(new Event('sessionexpired')); }
   },1000);
   return endTime;
 }
@@ -417,6 +506,7 @@ function waitForInput(allowed=null, maskMode=false){
     }
     inp.addEventListener('keydown', onKey);
     inp.addEventListener('input', onInp);
+    inp.focus();
   });
 }
 
@@ -431,6 +521,7 @@ function showMenu(){
   add('<span class="cyan">[2]  THC Hydra Cyber Security</span>');
   add('<span class="cyan">[3]  Disconnect Device</span>');
   add('<span class="cyan">[4]  Device Remove</span>');
+  add('<span class="yellow">[5]  Username + IP Analysis</span>');
   add('<span class="red">[0]  Exit</span>');
   add('');
   add('<span class="dim">Type a number and press Enter...</span>');
@@ -439,6 +530,7 @@ function showMenu(){
 // ── Main input handler ──
 inp.addEventListener('keydown', async (e)=>{
   if(e.key !== 'Enter') return;
+  playUiSound('command');
   if(inp.getAttribute('data-waiting')) return; // waitForInput is active
   const val = inp.value.trim();
   inp.value = '';
@@ -477,6 +569,7 @@ inp.addEventListener('keydown', async (e)=>{
   else if(val==='2'){ busy=true; await option2(); busy=false; showMenu(); }
   else if(val==='3'){ busy=true; await option3(); busy=false; showMenu(); }
   else if(val==='4'){ busy=true; await option4(); busy=false; showMenu(); }
+  else if(val==='5'){ busy=true; await option5(); busy=false; showMenu(); }
   else { add(`<span class="red">Invalid command.</span>`); }
 });
 
@@ -576,14 +669,109 @@ const allPhases = [
   phasePortScan, phaseAuthCheck
 ];
 
+function waitForLocationAnswer(timeoutMs=null){
+  return new Promise(resolve=>{
+    const d=document.createElement('div'); d.className='line dim'; d.textContent='  > ';
+    out.appendChild(d); scroll(); inp.setAttribute('data-waiting','1');
+    let timeoutId=null, finished=false;
+    function cleanup(value){
+      if(finished) return; finished=true;
+      if(timeoutId) clearTimeout(timeoutId);
+      inp.removeEventListener('keydown',onKey); inp.removeEventListener('input',onInput);
+      window.removeEventListener('sessionexpired',onExpired);
+      inp.removeAttribute('data-waiting'); inp.value=''; d.remove(); resolve(value);
+    }
+    function onKey(e){
+      if(e.key!=='Enter') return;
+      const value=inp.value.trim().toLowerCase().replace(/\s+/g,' ');
+      if(['ok','ok lok2','stop','0'].includes(value)){ cleanup(value); return; }
+      add('<span class="yellow">Enter OK or OK LOK2. The session remains paused here.</span>');
+      inp.value=''; d.textContent='  > '; inp.focus();
+    }
+    function onInput(){ d.textContent='  > '+inp.value; scroll(); }
+    function onExpired(){ cleanup('stop'); }
+    inp.addEventListener('keydown',onKey); inp.addEventListener('input',onInput);
+    window.addEventListener('sessionexpired',onExpired);
+    if(timeoutMs!==null) timeoutId=setTimeout(()=>cleanup('timeout'),timeoutMs);
+    inp.focus();
+  });
+}
+
+async function locationStatusPrompt(){
+  spShow(); spSetStatus(false);
+  while(running){
+    add('');
+    add('<span class="yellow bold">⚠ CURRENT LOCATION STATUS</span>');
+    add('<span class="cyan">Current location: Internet Traffic Area (simulated)</span>');
+    add('<span class="red">This location is unavailable. Please try another location.</span>');
+    add('<span class="dim">Session is paused. Only OK LOK2 continues; OK shows another status in 2 minutes.</span>');
+    spAddLoc('INTERNET TRAFFIC AREA · SIMULATED');
+    const answer=await waitForLocationAnswer();
+    if(answer==='ok lok2'){
+      radarLocationUnlocked=true;
+      setRadar(true,document.getElementById('sp-radar-label')?.textContent||'SCANNING',1);
+      add('<span class="green">✓ Location 2 selected. Session continues until the 20-minute timer ends.</span>');
+      spAddLoc('LOCATION 2 SELECTED · SIMULATED');
+      return 'continue';
+    }
+    if(answer==='stop'||!running){
+      running=false; stopTimer();
+      add('<span class="red bold">[ STOPPED ]</span>');
+      return 'stop';
+    }
+    add('<span class="yellow">Still paused. Another location status will appear in 2 minutes.</span>');
+    while(running){
+      const next=await waitForLocationAnswer(2*60*1000);
+      if(next==='ok lok2'){
+        radarLocationUnlocked=true;
+        setRadar(true,document.getElementById('sp-radar-label')?.textContent||'SCANNING',1);
+        add('<span class="green">✓ Location 2 selected. Session continues until the 20-minute timer ends.</span>');
+        spAddLoc('LOCATION 2 SELECTED · SIMULATED');
+        return 'continue';
+      }
+      if(next==='stop'||!running){
+        running=false; stopTimer();
+        add('<span class="red bold">[ STOPPED ]</span>');
+        return 'stop';
+      }
+      if(next==='ok') add('<span class="yellow">Another status check is queued for 2 minutes from now. Session remains paused.</span>');
+      if(next==='timeout') break;
+    }
+  }
+  return 'stop';
+}
+async function runLocationWait(endTime){
+  let nextLocationPrompt=Date.now()+2*60*1000;
+  let location2Selected=false;
+  while(running && Date.now()<endTime){
+    if(!location2Selected && Date.now()>=nextLocationPrompt){
+      const choice=await locationStatusPrompt();
+      if(choice==='stop') break;
+      if(choice==='continue') location2Selected=true;
+      else nextLocationPrompt=Date.now()+2*60*1000;
+    }
+    await s(500);
+  }
+}
 async function runCycles(endTime, extraFn=null){
   let cycle=0;
+  let nextLocationPrompt=Date.now()+2*60*1000;
+  let location2Selected=false;
+  async function checkLocationCheckpoint(){
+    if(location2Selected || Date.now()<nextLocationPrompt) return false;
+    const choice=await locationStatusPrompt();
+    if(choice==='stop') return true;
+    if(choice==='continue') location2Selected=true;
+    else nextLocationPrompt=Date.now()+2*60*1000;
+    return false;
+  }
   while(running && Date.now()<endTime){
     cycle++;
     add('');
     add(`<span class="dim">── Cycle ${cycle} ──────────────────────────────────</span>`);
     await s(1200);
     if(extraFn){ const done=await extraFn(cycle,endTime); if(done) break; }
+    if(await checkLocationCheckpoint()) break;
     if(!running) break;
     const shuffled=[...allPhases].sort(()=>Math.random()-0.5);
     const count=rnd(3,5);
@@ -591,27 +779,85 @@ async function runCycles(endTime, extraFn=null){
       if(!running||Date.now()>=endTime) break;
       await shuffled[i]();
       await s(rnd(1500,2500));
+      if(await checkLocationCheckpoint()) break;
     }
     trimLines();
     await s(rnd(1500,2500));
   }
 }
+// OPTION 5 — Safe username + IP input
+async function option5(){
+  running=true; radarLocationUnlocked=false;
+  spShow(); spSetStatus(false); setRadar(true,'LOCATION SCAN / RADAR ACTIVE',1);
+  document.getElementById('sp-input').innerHTML=''; document.getElementById('sp-places').innerHTML='';
+  const input=document.getElementById('sp-input'), places=document.getElementById('sp-places');
+  const inputSec=document.getElementById('sp-input-sec'), placesSec=document.getElementById('sp-places-sec');
+  add('<span class="yellow bold">▶ IP INPUT CHECK</span>');
+  add('<span class="dim">Enter a display name and any IP-like text. Results are simulated and never identify a person.</span>');
+  add('<span class="cyan">Username / display name:</span>');
+  const username=await waitForInput(null,false);
+  add('<span class="cyan">IP address (IPv4 or IPv6):</span>');
+  const ip=await waitForInput(null,false);
+  inputSec.style.display='block';
+  for(const [label,value] of [['NAME',username || '(empty)'],['IP INPUT',ip || '(empty)']]){
+    const row=document.createElement('div'); row.className='sp-row cyan-row';
+    row.textContent=label+': '+value; input.appendChild(row);
+  }
+  const ipv4=/^(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)$/.test(ip);
+  const ipv6=/^[0-9a-f:]+$/i.test(ip) && ip.includes(':');
+  await type('Checking input format...','cyan',35);
+  await bar('Address format check',12,55);
+  add(`<span class="yellow">${ipv4||ipv6?'✓ Address-like format':'! This does not look like a standard IP format'} — simulation only</span>`);
+  add('<span class="dim">Location is not determined from this IP. The places below are sample Hyderabad-area points.</span>');
+  placesSec.style.display='block';
+  const samplePlaces=[
+    'Town / village: Shamshabad',
+    'Town / village: Moinabad',
+    'Town / village: Chevella',
+    'Town / village: Shankarpally',
+    'Town / village: Medchal',
+    'Town / village: Ghatkesar',
+    'Location: Rangapoor',
+    'Location: Pinchrala',
+    'Location: Charminar',
+    'Location: Hyderabad Cyber Office',
+    'Function hall: Shamshabad Celebration Hall',
+    'Function hall: Moinabad Garden Function Hall',
+    'Restaurant: Paradise Biryani, Secunderabad',
+    'Railway station: Secunderabad Junction',
+    'Railway station: Hyderabad Deccan (Nampally)',
+    'Railway station: Kacheguda',
+    'Railway station: Lingampalli',
+    'Railway station: Umdanagar'
+  ];
+  for(const text of samplePlaces){
+    const row=document.createElement('div'); row.className='sp-row'; row.textContent=text; places.appendChild(row);
+  }
+  add('<span class="green bold">✓ Input check finished. No person or exact location was identified.</span>');
+  add('<span class="dim">The location status runs for 20 minutes; enter OK or OK LOK2 when prompted.</span>');
+  running=true;
+  const endTime=startTimer('Option 5 — IP Input Check',20);
+  await runLocationWait(endTime);
+  stopTimer(); running=false; spHide();
+  add('<span class="green bold">✓ Option 5 — Session Complete</span>');
+}
 
-// ══════════════════════════════════════
 // OPTION 1 — Hydra Dongle (18 min)
 // ══════════════════════════════════════
 async function option1(){
-  running=true;
-  const endTime=startTimer('Option 1 — Hydra Dongle', 18);
+  running=true; radarLocationUnlocked=false;
+  spShow(); spAddDev('CONNECTING TO ANOTHER DEVICE'); setRadar(true,'DEVICE SCAN / RADAR ACTIVE',8);
+  const endTime=startTimer('Option 1 — Hydra Dongle', 20);
   add('<span class="yellow bold">▶ Option 1 — Hydra Dongle [RUN]</span>');
   add('<span class="cyan bold">════════════════════════════════════════════════</span>');
   add('');
   await s(600);
   await runCycles(endTime);
+  spHide();
   stopTimer();
   add('');
   add('<span class="green bold">✓ Option 1 — Session Complete [RUN]</span>');
-  add('<span class="dim">(do not clike screen)</span>');
+  add('<span class="dim">(Session complete)</span>');
   await s(800);
 }
 
@@ -619,8 +865,13 @@ async function option1(){
 // OPTION 2 — THC Hydra (30 min, yes/no at 12 min)
 // ══════════════════════════════════════
 async function option2(){
-  running=true;
-  const endTime=startTimer('Option 2 — THC Hydra', 30);
+  running=true; radarLocationUnlocked=false;
+  spShow();
+  spAddDev('REMOVING NETWORK ROUTE');
+  spAddDev('RECONNECTING NETWORK');
+  spAddDev('CONNECTION SPEED: SLOW');
+  setRadar(true,'NETWORK RECONNECT / RADAR ACTIVE',4);
+  const endTime=startTimer('Option 2 — THC Hydra', 20);
   add('<span class="yellow bold">▶ Option 2 — THC Hydra Cyber Security [RUN]</span>');
   add('<span class="cyan bold">════════════════════════════════════════════════</span>');
   add('');
@@ -631,7 +882,7 @@ async function option2(){
 
   await runCycles(endTime, async (cycle, et)=>{
     const elapsed=Date.now()-startTime;
-    if(!promptDone && elapsed >= 12*60*1000){
+    if(!promptDone && elapsed >= 20*1000){
       promptDone=true;
       await s(500);
       add('');
@@ -677,10 +928,11 @@ async function option2(){
     return false;
   });
 
+  spHide();
   stopTimer();
   add('');
   add('<span class="green bold">✓ Option 2 — Session Complete [RUN]</span>');
-  add('<span class="dim">(do not clike screen)</span>');
+  add('<span class="dim">(Session complete)</span>');
   await s(800);
 }
 
@@ -689,21 +941,22 @@ async function option2(){
 // 3 fails at 6,13,20 min → success at 26 min
 // ══════════════════════════════════════
 async function option3(){
-  running=true;
+  running=true; radarLocationUnlocked=false;
+  spShow(); spAddNum('+91######9783'); setRadar(true,'DEVICE SCAN / RADAR ACTIVE',2);
   spShow();
   spSetStatus(true);
   const deviceNames=['Device 1','Device 2','Device 3','Device 4','Device 5','Device 6','Device 7','Device 8'];
   const devRows=[];
   for(const dn of deviceNames) devRows.push(spAddDev(dn, false));
   spAddLoc(LOCATIONS[rnd(0,LOCATIONS.length-1)]);
-  const endTime=startTimer('Option 3 — Disconnect Device', 30);
+  const endTime=startTimer('Option 3 — Disconnect Device', 20);
   add('<span class="yellow bold">▶ Option 3 — Disconnect Device [RUN]</span>');
   add('<span class="cyan bold">════════════════════════════════════════════════</span>');
   add('');
   await s(600);
 
   const svcs=['Instagram','Facebook','WhatsApp','Telegram','Snapchat','X (Twitter)','Discord'];
-  const failTimes=[6*60*1000, 13*60*1000, 20*60*1000, 26*60*1000];
+  const failTimes=[2*60*1000, 6*60*1000, 10*60*1000, 14*60*1000];
   const startTime=Date.now();
   let attemptIdx=0;
   let devIdx=0;
@@ -727,10 +980,7 @@ async function option3(){
         }
         add('');
         add('<span class="red bold">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>');
-        add('<span class="red bold">  ⚠  Current Location: Internet Traffic Area</span>');
-        add('<span class="red bold">  ✗  This location is not working.</span>');
-        add('<span class="yellow">     Try another location.</span>');
-        add('<span class="red">  ✗  No Internet Traffic detected.</span>');
+        add('<span class="yellow">⚠ Simulated attempt failed. Retry is scheduled for the next checkpoint.</span>');
         add('<span class="red bold">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span>');
         await s(2000);
         attemptIdx++;
@@ -773,8 +1023,8 @@ async function option3(){
         add('<span class="green bold">  ✓  DEVICE REMOVED</span>');
         add('<span class="green bold">████████████████████████████████████████████</span>');
         await s(1500);
-        running=false;
-        return true;
+        attemptIdx=4;
+        return false;
       }
     }
     return false;
@@ -785,7 +1035,7 @@ async function option3(){
   if(attemptIdx<4){
     add('');
     add('<span class="green bold">✓ Option 3 — Session Complete [RUN]</span>');
-    add('<span class="dim">(do not click screen)</span>');
+    add('<span class="dim">(Session complete)</span>');
   }
   await s(800);
 }
@@ -794,11 +1044,12 @@ async function option3(){
 // OPTION 4 — Social Media/Calls/Photos (30 min)
 // ══════════════════════════════════════
 async function option4(){
-  running=true;
+  running=true; radarLocationUnlocked=false;
+  spShow(); setRadar(true,'DEVICE SCAN / RADAR ACTIVE',1);
   spShow();
   spSetStatus(true);
   spAddLoc(LOCATIONS[rnd(0,LOCATIONS.length-1)]);
-  const endTime=startTimer('Option 4 — Device Remove', 30);
+  const endTime=startTimer('Option 4 — Device Remove', 20);
   add('<span class="yellow bold">▶ Option 4 — Device Remove [RUN]</span>');
   add('<span class="cyan bold">════════════════════════════════════════════════</span>');
   add('');
@@ -810,25 +1061,18 @@ async function option4(){
     'user_7749','anon_331','sys_099','device_404','client_81'
   ];
   const socials=['Instagram','Facebook','WhatsApp','Telegram','Snapchat','X (Twitter)','Discord'];
-  const fixedEnds=['9783','4440','8241','0137','3641','1606','6506','1359','4977','3638','0248','4970','5841','0230'];
-
   function buildPhoneList(){
-    const list=fixedEnds.map(e=>{
-      const p1=rnd(6,9);
-      const p2=String(rnd(10000,99999));
-      return { num:`+91 ${p1}${p2.slice(0,2)}**** ${e}`, fixed:true };
-    });
-    for(let i=0;i<9;i++){
-      const r1=rnd(6,9);
-      const r2=String(rnd(10000,99999));
-      const r3=String(rnd(1000,9999));
-      list.push({ num:`+91 ${r1}${r2.slice(0,2)}**** ${r3}`, fixed:false });
+    const suffixes=['8241','0137','3641','1606','6506','0248','1359','5841','4970','0248','4970','2257','3638','9169','4210','5378','5841','0230','4440','1853','8241','8372'];
+    const used=new Set(suffixes);
+    const extras=new Set();
+    while(extras.size<5){
+      const suffix=String(rnd(0,9999)).padStart(4,'0');
+      if(!used.has(suffix)) extras.add(suffix);
     }
-    return list.sort(()=>Math.random()-0.5);
+    return [...suffixes,...extras].map(last4=>({num:`+91######${last4}`,fixed:false}));
   }
-
   const startTime=Date.now();
-  const milestones=[16*60*1000, 24*60*1000];
+  const milestones=[20*1000, 40*1000];
   let mDone=[false,false];
 
   // ── START: Login/Logout + Phone Numbers (immediately) ──
@@ -860,10 +1104,10 @@ async function option4(){
     const idx=String(i+1).padStart(2,' ');
     const numPad=p.num.padEnd(24,' ');
     const badge=p.fixed
-      ? '<span style="color:#ff3c3c">⚠ Aadhar Device</span>'
+      ? '<span style="color:#ff3c3c">⚠ Masked</span>'
       : '<span style="color:#ffe600">Unknown      </span>';
     add(`<span class="dim">  │ ${idx}. <span style="color:#00ffff">${numPad}</span> ${badge} │</span>`);
-    spAddNum(p.num.replace('+91 ',''));
+    spAddNum(p.num);
     await s(300);
   }
   add('<span class="dim">  └──────────────────────────────────────────────┘</span>');
@@ -876,7 +1120,7 @@ async function option4(){
     add(`<span class="dim">  [${idx}/${phones.length}] <span style="color:#ff3c3c">REMOVED</span>  <span style="color:#00ffff">${p.num}</span>${p.fixed?' — <span style="color:#ff3c3c">Aadhar Device</span>':''}</span>`);
     // mark panel row as removed
     const spRow = spNums.querySelectorAll('.sp-row')[i];
-    if(spRow){ spRow.classList.add('removed'); spRow.textContent='✗ '+p.num.replace('+91 ',''); }
+    if(spRow){ spRow.classList.add('removed'); spRow.textContent='✗ '+p.num; }
     await s(rnd(250,400));
   }
   await s(500);
@@ -967,7 +1211,7 @@ async function option4(){
   spHide();
   add('');
   add('<span class="green bold">✓ Option 4 — Session Complete [RUN]</span>');
-  add('<span class="dim">(do not clike screen)</span>');
+  add('<span class="dim">(Session complete)</span>');
   await s(800);
 }
 
@@ -1020,7 +1264,7 @@ async function showLogin(){
   add('<span class="cyan">Password:</span>');
   const pwd = await waitForInput(null, true);
 
-  if(pwd === 'Hyderabad'){
+  if(pwd === 'hydra'){
     add('<span class="yellow">▶ ••••••••••••</span>');
     add('');
     add('<span class="green bold">════════════════════════════════════════════════</span>');
@@ -1048,7 +1292,7 @@ async function showLogin(){
     // No menu — terminal stops here, input hidden
     inpRow.style.display='none';
 
-  } else if(pwd === 'Hyderabad##'){
+  } else if(pwd === 'hydraa'){
     add('<span class="yellow">▶ ••••••••••</span>');
     add('');
     add('<span class="green bold">  ✓  AUTHENTICATION SUCCESSFUL</span>');
