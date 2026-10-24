@@ -151,6 +151,23 @@
   #out::-webkit-scrollbar { width:3px; }
   #out::-webkit-scrollbar-thumb { background:#00ff4155; }
 
+  /* ── Compact live status panel ── */
+  #quick-panel {
+    order:0; align-self:flex-start; flex:0 0 190px; width:190px; height:278px; max-height:40dvh; min-width:0; min-height:0;
+    padding:6px; overflow:hidden; background:#000d00; border:1px solid #00ff4155;
+    color:#00ff41; font:10px 'Courier New',Courier,monospace;
+    display:flex; flex-direction:column; gap:5px;
+  }
+  .qp-head { color:#00ffff; font-weight:bold; text-align:center; letter-spacing:1px; flex:0 0 auto; }
+  .qp-radar-wrap { flex:0 0 auto; padding:3px; border:1px solid #00ff4133; background:#001000; }
+  .qp-radar { width:120px; height:120px; margin:0 auto; }
+  .qp-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:3px; min-height:0; overflow:hidden; }
+  .qp-cell { min-width:0; padding:2px 3px; border-left:2px solid #00ffff88; background:#001000; }
+  .qp-cell span { display:block; color:#00ffff; font-size:7px; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .qp-cell b { display:block; margin-top:1px; min-height:10px; color:#00ff41; font-size:8px; font-weight:normal; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #qp-locate { flex:0 0 auto; min-height:32px; border:1px solid #00ff4188; border-radius:2px; background:#001400; color:#00ff41; font:600 10px 'Courier New',monospace; cursor:pointer; touch-action:manipulation; }
+  #qp-locate:focus-visible { outline:2px solid #00ffff; outline-offset:2px; }
+
   /* ── Info Panel (inside terminal, right side) ── */
   #info-panel {
     display:none;
@@ -219,25 +236,32 @@
   @keyframes radarPulse { 50% { opacity:.25; transform:scale(.65); } }  @keyframes spblink { 50%{ opacity:0; } }
   @media (max-width:600px) { #info-panel { width:42%; min-width:130px; } }
   .terminal-toolbar { display:flex; align-items:center; gap:7px; flex-shrink:0; margin-bottom:6px; }
-  #sound-toggle { flex:0 0 auto; min-height:36px; padding:6px 10px; border:1px solid #00ff41; border-radius:3px; background:#001400; color:#00ff41; font:600 11px 'Courier New',monospace; cursor:pointer; touch-action:manipulation; }
-  #sound-toggle:focus-visible, #sound-test:focus-visible { outline:2px solid #00ffff; outline-offset:2px; }
-  #sound-test { flex:0 0 auto; min-height:36px; padding:6px 9px; border:1px solid #00ffff88; border-radius:3px; background:#001018; color:#00ffff; font:600 11px 'Courier New',monospace; cursor:pointer; touch-action:manipulation; }
   @media (max-width:700px) {
     body { padding:env(safe-area-inset-top) 5px env(safe-area-inset-bottom); }
     #terminal { height:100dvh; max-height:none; padding:8px; border-width:1px; }
     #main-row { flex-direction:column; gap:5px; }
-    #info-panel { order:0; width:100%; min-width:0; flex:0 0 min(28dvh,210px); }
+    #quick-panel { order:0; align-self:stretch; flex:0 0 206px; width:100%; height:206px; max-height:none; padding:4px; gap:3px; }
+    .qp-head { font-size:9px; }
+    .qp-radar-wrap { padding:2px; }
+    .qp-radar { width:82px; height:82px; }
+    .qp-grid { grid-template-columns:repeat(3,minmax(0,1fr)); gap:2px; }
+    .qp-cell { padding:2px; }
+    .qp-cell span { font-size:7px; }
+    .qp-cell b { font-size:8px; }
+    #qp-locate { min-height:25px; }
     #out { order:1; flex:1 1 auto; min-height:0; }
+    #info-panel { order:2; width:100%; min-width:0; flex:0 0 min(22dvh,170px); }
     .radar-scope { width:82px; height:82px; }
     #sp-radar { margin:3px 0; padding:3px; }
-    #sound-toggle { min-height:40px; padding:7px 9px; }
     #timer-bar { min-width:0; padding:5px; letter-spacing:0; font-size:10px; }
     .line { overflow-wrap:anywhere; word-break:normal; }
   }
   @media (max-height:500px) and (orientation:landscape) {
     #main-row { flex-direction:row; }
-    #info-panel { order:1; width:min(35vw,190px); flex:0 0 min(35vw,190px); }
-    #out { order:0; }
+    #quick-panel { order:0; align-self:flex-start; width:min(26vw,190px); flex:0 0 min(26vw,190px); height:230px; }
+    .qp-radar { width:94px; height:94px; }
+    #out { order:1; }
+    #info-panel { order:2; width:min(28vw,190px); flex:0 0 min(28vw,190px); }
     .radar-scope { width:70px; height:70px; }
     #info-panel { font-size:9px; }
   }
@@ -249,8 +273,23 @@
 <body>
 <div class="scanline"></div>
 <div id="terminal">
-  <div class="terminal-toolbar"><div id="timer-bar">⏱ Remaining: --:--</div><button id="sound-toggle" type="button" aria-pressed="true" aria-label="Turn sound effects off">🔊 SOUND ON</button><button id="sound-test" type="button">▶ TEST</button></div>
+  <div class="terminal-toolbar"><div id="timer-bar">⏱ Remaining: --:--</div></div>
   <div id="main-row">
+    <aside id="quick-panel" aria-label="Live local status">
+      <div class="qp-head">◉ LIVE STATUS</div>
+      <div class="qp-radar-wrap" aria-label="Continuously rotating status radar">
+        <div class="radar-scope qp-radar"><span class="radar-dot" style="left:50%;top:50%"></span></div>
+      </div>
+      <div class="qp-grid">
+        <div class="qp-cell"><span>SECURITY</span><b id="qp-security"></b></div>
+        <div class="qp-cell"><span>NETWORK</span><b id="qp-network"></b></div>
+        <div class="qp-cell"><span>DEVICE / BATTERY</span><b id="qp-device"></b></div>
+        <div class="qp-cell"><span>PAGE ACTIVITY</span><b id="qp-activity"></b></div>
+        <div class="qp-cell"><span>SYSTEM</span><b id="qp-system"></b></div>
+        <div class="qp-cell"><span>CURRENT LOCATION</span><b id="qp-location">Tap LOCATE</b></div>
+      </div>
+      <button id="qp-locate" type="button">⌖ LOCATE</button>
+    </aside>
     <div id="out"></div>
     <div id="info-panel">
       <div class="sp-title">◉ STATUS PANEL</div>
@@ -284,7 +323,6 @@ const out      = document.getElementById('out');
 const inp      = document.getElementById('cmd-input');
 const timerBar = document.getElementById('timer-bar');
 const inpRow   = document.getElementById('input-row');
-const soundToggle = document.getElementById('sound-toggle');
 let soundEnabled = true;
 let soundContext = null;
 async function playUiSound(kind='tick') {
@@ -307,21 +345,6 @@ async function playUiSound(kind='tick') {
     osc.start(now); osc.stop(now+.21);
   } catch(e) { /* Sound is optional when the browser blocks audio. */ }
 }
-soundToggle.addEventListener('click',()=>{
-  soundEnabled=!soundEnabled;
-  soundToggle.textContent=soundEnabled?'🔊 SOUND ON':'🔇 SOUND OFF';
-  soundToggle.setAttribute('aria-pressed',String(soundEnabled));
-  soundToggle.setAttribute('aria-label',soundEnabled?'Turn sound effects off':'Turn sound effects on');
-  if(soundEnabled) playUiSound('success');
-});
-document.getElementById('sound-test').addEventListener('click',()=>{
-  soundEnabled=true;
-  soundToggle.textContent='🔊 SOUND ON';
-  soundToggle.setAttribute('aria-pressed','true');
-  soundToggle.setAttribute('aria-label','Turn sound effects off');
-  playUiSound('success');
-});
-
 // ── Info Panel refs ──
 const infoPanel    = document.getElementById('info-panel');
 const spUsers      = document.getElementById('sp-users');
@@ -410,7 +433,7 @@ function add(html, cls=''){
   const d = document.createElement('div');
   d.className = 'line ' + cls;
   d.innerHTML = html;
-  if(/CURRENT LOCATION STATUS|\[ STOPPED \]|Session Complete|Option [1-5].*\[RUN\]/i.test(html)) playUiSound(/STOPPED/i.test(html)?'stop':/Complete/i.test(html)?'success':'scan');
+  if(/CURRENT LOCATION STATUS|\[ STOPPED \]|Session Complete|Option (?:[1-9]|10).*\[RUN\]/i.test(html)) playUiSound(/STOPPED/i.test(html)?'stop':/Complete/i.test(html)?'success':'scan');
   out.appendChild(d);
   scroll();
   return d;
@@ -530,6 +553,7 @@ function showMenu(){
   add('<span class="cyan">[3]  Disconnect Device</span>');
   add('<span class="cyan">[4]  Device Remove</span>');
   add('<span class="yellow">[5]  Username + IP Analysis</span>');
+
   add('<span class="red">[0]  Exit</span>');
   add('');
   add('<span class="dim">Type a number and press Enter...</span>');
@@ -578,6 +602,7 @@ inp.addEventListener('keydown', async (e)=>{
   else if(val==='3'){ busy=true; await option3(); busy=false; showMenu(); }
   else if(val==='4'){ busy=true; await option4(); busy=false; showMenu(); }
   else if(val==='5'){ busy=true; await option5(); busy=false; showMenu(); }
+
   else { add(`<span class="red">Invalid command.</span>`); }
 });
 
@@ -1218,6 +1243,37 @@ async function option4(){
   await s(800);
 }
 
+// Read-only local status views. These inspect this browser page only.
+function localRow(label,value){
+  const row=document.createElement('div'); row.className='line';
+  const key=document.createElement('span'); key.className='cyan'; key.textContent=label+': ';
+  const val=document.createElement('span'); val.className='green'; val.textContent=String(value);
+  row.append(key,val); out.appendChild(row); scroll();
+}
+function localConnection(){
+  const c=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+  return c ? `${c.effectiveType||'type unavailable'} · RTT ${Number.isFinite(c.rtt)?c.rtt+' ms':'n/a'} · downlink ${Number.isFinite(c.downlink)?c.downlink+' Mbps':'n/a'}` : 'Connection metrics not exposed by this browser';
+}
+function batteryStatus(){
+  return navigator.getBattery ? navigator.getBattery().then(b=>`${Math.round(b.level*100)}%${b.charging?' · charging':' · not charging'}`).catch(()=> 'Battery status unavailable') : Promise.resolve('Battery status not exposed by this browser');
+}
+
+async function getCurrentLocation(){
+  if(!navigator.geolocation){ add('<span class="red">Location is not available in this browser.</span>'); return; }
+  add('<span class="yellow">Requesting browser location permission. Coordinates will remain on this page.</span>');
+  const result=await new Promise(resolve=>navigator.geolocation.getCurrentPosition(
+    p=>resolve({ok:true,lat:p.coords.latitude,lon:p.coords.longitude,accuracy:p.coords.accuracy}),
+    e=>resolve({ok:false,error:e.code===1?'Permission denied':e.code===2?'Position unavailable':'Request timed out'}),
+    {enableHighAccuracy:false,timeout:12000,maximumAge:60000}
+  ));
+  if(!result.ok){ add(`<span class="red">Location: ${result.error}</span>`); return; }
+  localRow('Current location coordinates',`${result.lat.toFixed(5)}, ${result.lon.toFixed(5)}`);
+  localRow('Accuracy estimate',`about ${Math.round(result.accuracy)} m`);
+  const locPanel=document.getElementById('qp-location');
+  if(locPanel) typeQuickValue(locPanel,`${result.lat.toFixed(3)}, ${result.lon.toFixed(3)}`);
+  add('<span class="dim">No place-name lookup or network request was made.</span>');
+}
+
 // ══════════════════════════════════════
 // EXIT
 // ══════════════════════════════════════
@@ -1315,6 +1371,33 @@ async function showLogin(){
   }
 }
 
+// Type the local status values into the side panel and keep supported signals fresh.
+async function typeQuickValue(el,value){
+  if(!el) return;
+  const text=String(value); el.textContent='';
+  for(const ch of text){ el.textContent+=ch; await s(13); }
+}
+async function startQuickPanel(){
+  const fields=[
+    ['qp-security',window.isSecureContext?'LOCAL SECURE':'BROWSER STATUS'],
+    ['qp-network',navigator.onLine?'ONLINE':'OFFLINE'],
+    ['qp-device','CHECKING BATTERY'],
+    ['qp-activity',`${performance.getEntriesByType('resource').length} PAGE RESOURCES`],
+    ['qp-system',`${navigator.language||'LANG N/A'} · ${Intl.DateTimeFormat().resolvedOptions().timeZone||'TZ N/A'}`]
+  ];
+  for(const [id,value] of fields){ await typeQuickValue(document.getElementById(id),value); await s(80); }
+  if(navigator.getBattery){
+    try{
+      const battery=await navigator.getBattery();
+      const update=()=>typeQuickValue(document.getElementById('qp-device'),`${Math.round(battery.level*100)}%${battery.charging?' CHARGING':''}`);
+      await update(); battery.addEventListener('levelchange',update); battery.addEventListener('chargingchange',update);
+    }catch(_){ await typeQuickValue(document.getElementById('qp-device'),'BATTERY UNAVAILABLE'); }
+  }else await typeQuickValue(document.getElementById('qp-device'),'BATTERY NOT EXPOSED');
+  window.addEventListener('online',()=>typeQuickValue(document.getElementById('qp-network'),'ONLINE'));
+  window.addEventListener('offline',()=>typeQuickValue(document.getElementById('qp-network'),'OFFLINE'));
+}
+document.getElementById('qp-locate')?.addEventListener('click',getCurrentLocation);
+
 // ══════════════════════════════════════
 // BOOT
 // ══════════════════════════════════════
@@ -1327,6 +1410,7 @@ async function boot(){
   busy=false;
 }
 boot();
+startQuickPanel();
 </script>
 </body>
 </html>
