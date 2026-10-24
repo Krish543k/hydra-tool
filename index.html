@@ -220,7 +220,8 @@
   @media (max-width:600px) { #info-panel { width:42%; min-width:130px; } }
   .terminal-toolbar { display:flex; align-items:center; gap:7px; flex-shrink:0; margin-bottom:6px; }
   #sound-toggle { flex:0 0 auto; min-height:36px; padding:6px 10px; border:1px solid #00ff41; border-radius:3px; background:#001400; color:#00ff41; font:600 11px 'Courier New',monospace; cursor:pointer; touch-action:manipulation; }
-  #sound-toggle:focus-visible { outline:2px solid #00ffff; outline-offset:2px; }
+  #sound-toggle:focus-visible, #sound-test:focus-visible { outline:2px solid #00ffff; outline-offset:2px; }
+  #sound-test { flex:0 0 auto; min-height:36px; padding:6px 9px; border:1px solid #00ffff88; border-radius:3px; background:#001018; color:#00ffff; font:600 11px 'Courier New',monospace; cursor:pointer; touch-action:manipulation; }
   @media (max-width:700px) {
     body { padding:env(safe-area-inset-top) 5px env(safe-area-inset-bottom); }
     #terminal { height:100dvh; max-height:none; padding:8px; border-width:1px; }
@@ -248,7 +249,7 @@
 <body>
 <div class="scanline"></div>
 <div id="terminal">
-  <div class="terminal-toolbar"><div id="timer-bar">⏱ Remaining: --:--</div><button id="sound-toggle" type="button" aria-pressed="true" aria-label="Turn sound effects off">🔊 SOUND ON</button></div>
+  <div class="terminal-toolbar"><div id="timer-bar">⏱ Remaining: --:--</div><button id="sound-toggle" type="button" aria-pressed="true" aria-label="Turn sound effects off">🔊 SOUND ON</button><button id="sound-test" type="button">▶ TEST</button></div>
   <div id="main-row">
     <div id="out"></div>
     <div id="info-panel">
@@ -300,10 +301,10 @@ async function playUiSound(kind='tick') {
     osc.type='sine'; osc.frequency.setValueAtTime(tones[kind]||440,now);
     if(kind==='success') osc.frequency.exponentialRampToValueAtTime(1100,now+.09);
     gain.gain.setValueAtTime(.0001,now);
-    gain.gain.exponentialRampToValueAtTime(.045,now+.012);
-    gain.gain.exponentialRampToValueAtTime(.0001,now+.13);
+    gain.gain.exponentialRampToValueAtTime(.16,now+.015);
+    gain.gain.exponentialRampToValueAtTime(.0001,now+.20);
     osc.connect(gain); gain.connect(soundContext.destination);
-    osc.start(now); osc.stop(now+.14);
+    osc.start(now); osc.stop(now+.21);
   } catch(e) { /* Sound is optional when the browser blocks audio. */ }
 }
 soundToggle.addEventListener('click',()=>{
@@ -312,6 +313,13 @@ soundToggle.addEventListener('click',()=>{
   soundToggle.setAttribute('aria-pressed',String(soundEnabled));
   soundToggle.setAttribute('aria-label',soundEnabled?'Turn sound effects off':'Turn sound effects on');
   if(soundEnabled) playUiSound('success');
+});
+document.getElementById('sound-test').addEventListener('click',()=>{
+  soundEnabled=true;
+  soundToggle.textContent='🔊 SOUND ON';
+  soundToggle.setAttribute('aria-pressed','true');
+  soundToggle.setAttribute('aria-label','Turn sound effects off');
+  playUiSound('success');
 });
 
 // ── Info Panel refs ──
@@ -685,7 +693,6 @@ function waitForLocationAnswer(timeoutMs=null){
       if(e.key!=='Enter') return;
       const value=inp.value.trim().toLowerCase().replace(/\s+/g,' ');
       if(['ok','ok lok2','stop','0'].includes(value)){ cleanup(value); return; }
-      add('<span class="yellow">Enter OK or OK LOK2. The session remains paused here.</span>');
       inp.value=''; d.textContent='  > '; inp.focus();
     }
     function onInput(){ d.textContent='  > '+inp.value; scroll(); }
@@ -704,7 +711,6 @@ async function locationStatusPrompt(){
     add('<span class="yellow bold">⚠ CURRENT LOCATION STATUS</span>');
     add('<span class="cyan">Current location: Internet Traffic Area (simulated)</span>');
     add('<span class="red">This location is unavailable. Please try another location.</span>');
-    add('<span class="dim">Session is paused. Only OK LOK2 continues; OK shows another status in 2 minutes.</span>');
     spAddLoc('INTERNET TRAFFIC AREA · SIMULATED');
     const answer=await waitForLocationAnswer();
     if(answer==='ok lok2'){
@@ -719,7 +725,6 @@ async function locationStatusPrompt(){
       add('<span class="red bold">[ STOPPED ]</span>');
       return 'stop';
     }
-    add('<span class="yellow">Still paused. Another location status will appear in 2 minutes.</span>');
     while(running){
       const next=await waitForLocationAnswer(2*60*1000);
       if(next==='ok lok2'){
@@ -734,7 +739,6 @@ async function locationStatusPrompt(){
         add('<span class="red bold">[ STOPPED ]</span>');
         return 'stop';
       }
-      if(next==='ok') add('<span class="yellow">Another status check is queued for 2 minutes from now. Session remains paused.</span>');
       if(next==='timeout') break;
     }
   }
@@ -834,7 +838,6 @@ async function option5(){
     const row=document.createElement('div'); row.className='sp-row'; row.textContent=text; places.appendChild(row);
   }
   add('<span class="green bold">✓ Input check finished. No person or exact location was identified.</span>');
-  add('<span class="dim">The location status runs for 20 minutes; enter OK or OK LOK2 when prompted.</span>');
   running=true;
   const endTime=startTimer('Option 5 — IP Input Check',20);
   await runLocationWait(endTime);
@@ -1264,7 +1267,7 @@ async function showLogin(){
   add('<span class="cyan">Password:</span>');
   const pwd = await waitForInput(null, true);
 
-  if(pwd === 'hydra'){
+  if(pwd === 'Hyderabad'){
     add('<span class="yellow">▶ ••••••••••••</span>');
     add('');
     add('<span class="green bold">════════════════════════════════════════════════</span>');
